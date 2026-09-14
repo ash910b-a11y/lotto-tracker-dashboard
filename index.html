@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스피또 기록</title>
+<style>
+* { box-sizing: border-box; }
+body { margin:0; padding:14px 12px 40px; background:#EFEFF0; color:#17181A;
+  font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;
+  -webkit-text-size-adjust:100%; }
+.page { max-width:900px; margin:0 auto; display:flex; flex-direction:column; gap:14px; }
+h1 { margin:0; font-size:19px; font-weight:800; }
+h2 { margin:0 0 10px; font-size:14px; font-weight:800; }
+h3 { margin:14px 0 6px; font-size:12px; font-weight:700; color:#7C7F85; }
+header { border-bottom:2px solid #17181A; padding-bottom:10px; }
+header .when { font-size:11px; color:#7C7F85; }
+.block { background:#fff; border:1px solid #E6E6E8; border-radius:10px; padding:14px 12px; }
+
+/* ---------- 카드 ---------- */
+.cards { display:grid; grid-template-columns:1fr; gap:10px; }
+@media (min-width:640px) { .cards { grid-template-columns:1fr 1fr; } }
+.card { border:1px solid #E6E6E8; border-radius:9px; padding:11px 12px; background:#F7F7F8; }
+.card.danger { border:2px solid #D62839; background:#FFF3F4; }
+.card.fail { border:1px dashed #C9CCD1; background:#fff; }
+.card-head { font-size:13px; font-weight:800; }
+.card-head .sub { font-size:11px; font-weight:400; color:#9CA0A6; margin-left:4px; }
+.big { font-size:24px; font-weight:800; margin:6px 0 4px; }
+.big b { color:#1F4E79; }
+.big.soldout { color:#D62839; font-size:21px; }
+.soldout-tag { font-size:13px; font-weight:700; color:#7C7F85; margin-top:6px; }
+.ranks { font-size:12px; color:#7C7F85; margin-bottom:7px; }
+.line { display:flex; justify-content:space-between; gap:8px; font-size:12px;
+  padding:5px 0; border-top:1px solid #EDEDEE; }
+.line .k { color:#7C7F85; }
+.line .v { font-weight:700; }
+.raw, .step { font-size:10px; color:#9CA0A6; font-weight:400; }
+.ev { margin-top:8px; padding-top:8px; border-top:1px solid #EDEDEE; }
+.ev-main { font-size:15px; font-weight:700; }
+.ev-main b { color:#17181A; }
+.ev-ratio { font-size:12px; color:#D62839; font-weight:700; }
+.ev-sub { font-size:11px; color:#9CA0A6; margin-top:2px; }
+.ev-split { font-size:11px; color:#7C7F85; margin-top:4px; }
+.basis { font-size:11px; color:#9CA0A6; margin-top:8px; }
+.basis.stale { background:#FFF8E1; border:1px solid #F2D98D; color:#8A6D1A;
+  border-radius:5px; padding:4px 7px; font-weight:700; }
+.ship { font-size:10px; color:#9CA0A6; margin-top:6px; }
+
+/* ---------- 각주 ---------- */
+.notes { margin:0; padding-left:16px; }
+.notes li { font-size:11px; color:#7C7F85; line-height:1.7; }
+
+/* ---------- 타일·표 ---------- */
+.tiles { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:#ECECEE;
+  border:1px solid #ECECEE; border-radius:8px; overflow:hidden; margin-bottom:12px; }
+@media (min-width:560px) { .tiles { grid-template-columns:repeat(4,1fr); } }
+.tile { background:#fff; padding:9px 10px; }
+.t-lab { font-size:10px; color:#9CA0A6; }
+.t-val { font-size:16px; font-weight:800; }
+.tbl-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+table { border-collapse:collapse; width:100%; font-size:12px; }
+th, td { padding:6px 6px; text-align:right; white-space:nowrap;
+  border-bottom:1px solid #F0F0F1; }
+th { font-size:10px; color:#9CA0A6; font-weight:700; }
+th.l, td.l { text-align:left; }
+tr.unchecked td { color:#9CA0A6; background:#FAFAFB; }
+.tag { font-size:9px; background:#ECECEE; color:#7C7F85; padding:1px 5px;
+  border-radius:3px; font-weight:700; }
+/* 좁은 폰에서는 '장수' 칸을 숨긴다. 여섯 칸이 다 들어가면 정작 중요한 당첨금이 잘린다. */
+@media (max-width:480px) { .opt { display:none; } }
+.empty { font-size:12px; color:#9CA0A6; margin:6px 0; }
+.foot { font-size:10px; color:#9CA0A6; margin:8px 0 0; line-height:1.6; }
+.foot.hint { background:#FFF8E1; border:1px solid #F2D98D; color:#8A6D1A;
+  border-radius:5px; padding:6px 8px; }
+footer { font-size:10px; color:#9CA0A6; text-align:center; padding:4px 0 0; }
+.js-plotly-plot { width:100% !important; }
+</style>
+<meta name="robots" content="noindex">
+<script charset="utf-8" src="https://cdn.plot.ly/plotly-4.0.0.min.js" integrity="sha256-FEYfO0yRyLtZCpnW0Dw/0DHKQO7Afrq3ml4+rBB818o=" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="page">
+<header>
+  <h1>스피또 기록</h1>
+  <div class="when">회차별 확률·기대값과 우리 구매 기록</div>
+</header>
+<section class="block"><h2>스피또1000</h2><div class="cards">
+<div class="card">
+  <div class="card-head">109회 <span class="sub">1등 7/12</span></div>
+  <div class="big">1등 <b>7매</b> 남음</div>
+  <div class="ranks">2등 41/60 · 3등 251,756/330,000</div>
+  <div class="line"><span class="k">소진율</span>
+    <span class="v">23.7% <span class="raw">(251,756/330,000)</span></span></div>
+  <div class="ev">
+    <div class="ev-main" title="정확히 574.4원">장당 <b>574원</b> <span class="ev-ratio">(가격의 57.4%)</span></div>
+    <div class="ev-sub">발행 시점 600원 대비 -25원</div>
+    <div class="ev-split" title="정확히 149.4원">이 중 1~3등 몫 149원 / 4등 이하(고정) 425원</div>
+  </div>
+  <div class="basis">기준일 2026-09-11 (3일 전)</div>
+  <div class="ship">판매점 입고율 63%</div>
+</div>
+<div class="card">
+  <div class="card-head">108회 <span class="sub">1등 1/11</span></div>
+  <div class="big">1등 <b>1매</b> 남음</div>
+  <div class="ranks">2등 8/55 · 3등 33,290/302,500</div>
+  <div class="line"><span class="k">소진율</span>
+    <span class="v">89.0% <span class="raw">(33,290/302,500)</span></span></div>
+  <div class="ev">
+    <div class="ev-main" title="정확히 589.0원">장당 <b>589원</b> <span class="ev-ratio">(가격의 58.9%)</span></div>
+    <div class="ev-sub">발행 시점 600원 대비 -10원</div>
+    <div class="ev-split" title="정확히 164.0원">이 중 1~3등 몫 164원 / 4등 이하(고정) 425원</div>
+  </div>
+  <div class="basis">기준일 2026-09-11 (3일 전)</div>
+  <div class="ship">판매점 입고율 100%</div>
+</div></div><h2>스피또2000</h2><div class="cards">
+<div class="card">
+  <div class="card-head">69회 <span class="sub">1등 10/10</span></div>
+  <div class="big">1등 <b>10매</b> 남음</div>
+  <div class="ranks">2등 15/30 · 3등 140/250</div>
+  <div class="line"><span class="k">소진율</span>
+    <span class="v">44.0% <span class="step">±0.4%p</span> <span class="raw">(140/250)</span></span></div>
+  <div class="ev">
+    <div class="ev-main" title="정확히 1,355.7원">장당 <b>1,355원</b> <span class="ev-ratio">(가격의 67.8%)</span></div>
+    <div class="ev-sub">발행 시점 1,205원 대비 +150원</div>
+    <div class="ev-split" title="정확히 460.7원">이 중 1~3등 몫 460원 / 4등 이하(고정) 895원</div>
+  </div>
+  <div class="basis">기준일 2026-09-11 (3일 전)</div>
+  <div class="ship">판매점 입고율 68%</div>
+</div>
+<div class="card">
+  <div class="card-head">68회 <span class="sub">1등 1/8</span></div>
+  <div class="big">1등 <b>1매</b> 남음</div>
+  <div class="ranks">2등 1/24 · 3등 17/200</div>
+  <div class="line"><span class="k">소진율</span>
+    <span class="v">91.5% <span class="step">±0.5%p</span> <span class="raw">(17/200)</span></span></div>
+  <div class="ev">
+    <div class="ev-main" title="정확히 1,268.5원">장당 <b>1,268원</b> <span class="ev-ratio">(가격의 63.4%)</span></div>
+    <div class="ev-sub">발행 시점 1,205원 대비 +63원</div>
+    <div class="ev-split" title="정확히 373.5원">이 중 1~3등 몫 373원 / 4등 이하(고정) 895원</div>
+  </div>
+  <div class="basis">기준일 2026-09-11 (3일 전)</div>
+  <div class="ship">판매점 입고율 100%</div>
+</div></div></section>
+<section class="block"><ul class="notes"><li>소진율은 3등 잔여 비율로 추정한 값입니다. 사이트의 입고율은 판매점 출고 비율이라 실제 구매 비율이 아닙니다.</li><li>4등 이하 잔여는 공개되지 않아 발행 시점 비율로 근사했습니다. 기대값 중 그 몫은 회차 진행과 무관하게 고정됩니다.</li><li>발행 매수는 1등 총 매수 × 500만으로 추정한 값입니다.</li></ul></section>
+<section class="block"><h2>우리 기록</h2><p class="empty">아직 기록이 없습니다.</p></section>
+<section class="block"><h2>주별 흐름</h2><p class="empty">아직 기록이 없습니다.</p></section>
+<section class="block"><h2>잔여 흐름</h2><h3>스피또1000</h3><div style="height:280px; width:100%;">                            <div id="chart-trend-0" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("chart-trend-0")) {                    Plotly.newPlot(                        "chart-trend-0",                        [{"marker":{"size":9,"symbol":"circle"},"mode":"lines+markers","name":"108\ud68c 1\ub4f1 \uc794\uc5ec","x":["2026-09-09T00:00:00","2026-09-10T00:00:00","2026-09-13T00:00:00"],"y":[1,1,1],"type":"scatter"},{"line":{"dash":"dot"},"marker":{"line":{"width":2.5},"size":11,"symbol":"x-thin"},"mode":"lines+markers","name":"108\ud68c \uc18c\uc9c4\uc728","x":["2026-09-09T00:00:00","2026-09-10T00:00:00","2026-09-13T00:00:00"],"y":[84.06809917355372,84.06809917355372,88.99504132231405],"yaxis":"y2","type":"scatter"},{"marker":{"size":9,"symbol":"circle"},"mode":"lines+markers","name":"109\ud68c 1\ub4f1 \uc794\uc5ec","x":["2026-09-09T00:00:00","2026-09-10T00:00:00","2026-09-13T00:00:00"],"y":[8,8,7],"type":"scatter"},{"line":{"dash":"dot"},"marker":{"line":{"width":2.5},"size":11,"symbol":"x-thin"},"mode":"lines+markers","name":"109\ud68c \uc18c\uc9c4\uc728","x":["2026-09-09T00:00:00","2026-09-10T00:00:00","2026-09-13T00:00:00"],"y":[11.019999999999996,11.019999999999996,23.710303030303027],"yaxis":"y2","type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05}}},"margin":{"l":8,"r":8,"t":28,"b":8},"font":{"family":"'Malgun Gothic','\ub9d1\uc740 \uace0\ub515',sans-serif","size":11,"color":"#17181A"},"legend":{"font":{"size":10},"orientation":"h","y":1.16,"x":0},"xaxis":{"gridcolor":"#F0F0F1","type":"date","tickformat":"%m\u002f%d"},"yaxis":{"gridcolor":"#F0F0F1","title":{"text":"1\ub4f1 \uc794\uc5ec(\ub9e4)"},"range":[0,10.0]},"height":280,"paper_bgcolor":"white","plot_bgcolor":"white","yaxis2":{"title":{"text":"\uc18c\uc9c4\uc728 %"},"overlaying":"y","side":"right","showgrid":false,"range":[0,111.24380165289256]}},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><h3>스피또2000</h3><div style="height:280px; width:100%;">                            <div id="chart-trend-1" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("chart-trend-1")) {                    Plotly.newPlot(                        "chart-trend-1",                        [{"marker":{"size":9,"symbol":"circle"},"mode":"lines+markers","name":"68\ud68c 1\ub4f1 \uc794\uc5ec","x":["2026-09-09T00:00:00","2026-09-10T00:00:00","2026-09-13T00:00:00"],"y":[1,1,1],"type":"scatter"},{"line":{"dash":"dot"},"marker":{"line":{"width":2.5},"size":11,"symbol":"x-thin"},"mode":"lines+markers","name":"68\ud68c \uc18c\uc9c4\uc728","x":["2026-09-09T00:00:00","2026-09-10T00:00:00","2026-09-13T00:00:00"],"y":[91.5,91.5,91.5],"yaxis":"y2","type":"scatter"},{"marker":{"size":9,"symbol":"circle"},"mode":"lines+markers","name":"69\ud68c 1\ub4f1 \uc794\uc5ec","x":["2026-09-09T00:00:00","2026-09-10T00:00:00","2026-09-13T00:00:00"],"y":[10,10,10],"type":"scatter"},{"line":{"dash":"dot"},"marker":{"line":{"width":2.5},"size":11,"symbol":"x-thin"},"mode":"lines+markers","name":"69\ud68c \uc18c\uc9c4\uc728","x":["2026-09-09T00:00:00","2026-09-10T00:00:00","2026-09-13T00:00:00"],"y":[34.8,34.8,43.99999999999999],"yaxis":"y2","type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05}}},"margin":{"l":8,"r":8,"t":28,"b":8},"font":{"family":"'Malgun Gothic','\ub9d1\uc740 \uace0\ub515',sans-serif","size":11,"color":"#17181A"},"legend":{"font":{"size":10},"orientation":"h","y":1.16,"x":0},"xaxis":{"gridcolor":"#F0F0F1","type":"date","tickformat":"%m\u002f%d"},"yaxis":{"gridcolor":"#F0F0F1","title":{"text":"1\ub4f1 \uc794\uc5ec(\ub9e4)"},"range":[0,12.5]},"height":280,"paper_bgcolor":"white","plot_bgcolor":"white","yaxis2":{"title":{"text":"\uc18c\uc9c4\uc728 %"},"overlaying":"y","side":"right","showgrid":false,"range":[0,114.375]}},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div></section>
+<section class="block"><h2>최근 기록</h2><p class="empty">아직 기록이 없습니다.</p></section>
+<footer>
+<div>생성 시각 2026-09-14 21:09</div>
+<div>판매 현황 기준일 2026-09-11 · 받은 날 2026-09-13 · 구매 기록 없음</div>
+</footer>
+</div>
+</body>
+</html>
